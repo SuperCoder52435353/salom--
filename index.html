@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plastik Karta Sayti</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f7f8;
+    margin: 0; padding: 0;
+  }
+  header {
+    background: #005a87;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+  }
+  .container {
+    max-width: 500px;
+    margin: 30px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #aaa;
+  }
+  h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #005a87;
+  }
+  label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+  input[type=text], input[type=password], input[type=number] {
+    width: 100%;
+    padding: 8px 12px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  button {
+    background: #005a87;
+    color: white;
+    border: none;
+    padding: 12px;
+    width: 100%;
+    margin-top: 15px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  button:hover {
+    background: #003f5c;
+  }
+  .message {
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+  }
+  .error {
+    color: red;
+  }
+  .success {
+    color: green;
+  }
+  .tab-switcher {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  .tab-switcher button {
+    width: 48%;
+    margin: 0 1%;
+    background: #ccc;
+    color: #333;
+    font-weight: bold;
+  }
+  .tab-switcher button.active {
+    background: #005a87;
+    color: white;
+  }
+  .hidden {
+    display: none;
+  }
+  .flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .show-password-btn {
+    cursor: pointer;
+    font-size: 14px;
+    color: #005a87;
+    margin-left: 5px;
+    user-select: none;
+  }
+  /* Dashboard styles */
+  #dashboard, #adminPanel {
+    max-width: 700px;
+    margin: 20px auto;
+  }
+  #dashboard h2, #adminPanel h2 {
+    color: #005a87;
+    text-align: center;
+  }
+  .info-row {
+    margin: 10px 0;
+  }
+  .info-row strong {
+    display: inline-block;
+    width: 140px;
+  }
+  .section {
+    background: #eef6fb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 25px;
+  }
+  .section h3 {
+    margin-top: 0;
+    color: #003f5c;
+  }
+  .card-request-item {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+  }
+  .card-request-item button {
+    width: auto;
+    margin: 0 5px;
+    padding: 5px 12px;
+    font-size: 14px;
+  }
+  .logout-btn {
+    background: #c0392b;
+    width: auto;
+    padding: 10px 20px;
+    margin: 10px auto 0 auto;
+    display: block;
+  }
+</style>
+</head>
+<body>
+
+<header><h1>Plastik Karta Sayti</h1></header>
+
+<div class="container">
+
+  <div class="tab-switcher">
+    <button id="btnLoginTab" class="active">Kirish</button>
+    <button id="btnRegisterTab">Ro‘yxatdan o‘tish</button>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginTab" class="tab active">
+    <h2>Kirish</h2>
+    <label for="loginUsername">Ism + Familiya (masalan: aliolim)</label>
+    <input type="text" id="loginUsername" autocomplete="username" />
+    <label for="loginPassword">Parol</label>
+    <div class="flex-row">
+      <input type="password" id="loginPassword" autocomplete="current-password" />
+      <span class="show-password-btn" id="toggleLoginPassword">Ko‘rsat</span>
+    </div>
+    <label><input type="checkbox" id="rememberMe" /> Meni eslab qol</label>
+    <button onclick="login()">Kirish</button>
+    <div class="message" id="loginMessage"></div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerTab" class="tab hidden">
+    <h2>Ro‘yxatdan o‘tish</h2>
+    <label for="regFirstName">Ism</label>
+    <input type="text" id="regFirstName" autocomplete="given-name" />
+    <label for="regLastName">Familiya</label>
+    <input type="text" id="regLastName" autocomplete="family-name" />
+    <label for="regPassword">Parol (kamida 6 belgidan)</label>
+    <div class="flex-row">
+      <input type="password" id="regPassword" autocomplete="new-password" />
+      <span class="show-password-btn" id="toggleRegPassword">Ko‘rsat</span>
+    </div>
+    <label for="regPasswordConfirm">Parolni tasdiqlang</label>
+    <div class="flex-row">
+      <input type="password" id="regPasswordConfirm" autocomplete="new-password" />
+      <span class="show-password-btn" id="toggleRegPasswordConfirm">Ko‘rsat</span>
+    </div>
+    <button onclick="register()">Ro‘yxatdan o‘tish</button>
+    <div class="message" id="registerMessage"></div>
+  </div>
+
+  <!-- DASHBOARD (foydalanuvchi uchun) -->
+  <div id="dashboard" class="hidden">
+    <h2>Xush kelibsiz, <span id="userFullName"></span>!</h2>
+    <div class="info-row"><strong>Username:</strong> <span id="userUsername"></span></div>
+    <div class="info-row"><strong>Balans:</strong> <span id="userBalance"></span> so‘m</div>
+    <div class="info-row"><strong>Karta raqami:</strong> <span id="userCardNumber"></span></div>
+
+    <div id="cardRequestSection" class="section hidden">
+      <h3>Karta so‘rashingiz mumkin</h3>
+      <button onclick="requestCard()">Karta so‘rov yuborish</button>
+      <div class="message" id="cardRequestMessage"></div>
+    </div>
+
+    <div id="transferSection" class="section hidden">
+      <h3>Pul o‘tkazish</h3>
+      <label for="transferCardNumber">Qabul qiluvchi karta raqami (16 xonali)</label>
+      <input type="text" id="transferCardNumber" placeholder="XXXX XXXX XXXX XXXX" maxlength="19" />
+      <label for="transferAmount">Miqdor (so‘m)</label>
+      <input type="number" id="transferAmount" min="1" />
+      <button onclick="transferMoney()">O‘tkazish</button>
+      <div class="message" id="transferMessage"></div>
+    </div>
+
+    <button class="logout-btn" onclick="logout()">Chiqish</button>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel" class="hidden">
+    <h2>Admin Panel</h2>
+    <h3>Karta so‘rovlari</h3>
+    <div id="adminCardRequestsList">So‘rovlar yo‘q</div>
+
+    <h3>Foydalanuvchilar ro‘yxati</h3>
+    <div id="adminUsersList">Foydalanuvchilar yo‘q</div>
+
+    <button class="logout-btn" onclick="logout()">Chiqish</button>
+  </div>
+
+</div>
+
+<script>
+  // Admin paroli
+  const ADMIN_PASSWORD = 'PASSWORDABDURAXMON';
+
+  // Ma'lumotlar uchun global massivlar
+  let users = [];
+  let currentUser = null;
+  let cardRequests = [];
+
+  // Saqlash
+  function saveData() {
+    localStorage.setItem('users', JSON.stringify(users));
+    localStorage.setItem('cardRequests', JSON.stringify(cardRequests));
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+  }
+
+  // Yuklash
+  function loadData() {
+    const loadedUsers = localStorage.getItem('users');
+    if (loadedUsers) users = JSON.parse(loadedUsers);
+
+    const loadedRequests = localStorage.getItem('cardRequests');
+    if (loadedRequests) cardRequests = JSON.parse(loadedRequests);
+
+    const loadedCurrentUser = localStorage.getItem('currentUser');
+    if (loadedCurrentUser) currentUser = JSON.parse(loadedCurrentUser);
+  }
+
+  // Unikal karta raqami generatsiyasi
+  function generateCardNumber() {
+    let number;
+    do {
+      number = '';
+      for (let i = 0; i < 16; i++) {
+        number += Math.floor(Math.random() * 10);
+      }
+    } while (users.some(u => u.cardNumber === number));
+    return number;
+  }
+
+  // Formatlash kartani 4x4 bloklar
+  function formatCardNumber(num) {
+    return num.replace(/\D/g, '').replace(/(.{4})/g, '$1 ').trim();
+  }
+
+  // Userni topish
+  function findUser(username) {
+    return users.find(u => u.username.toLowerCase() === username.toLowerCase());
+  }
+
+  // Passwordni ko‘rsatish
+  function setupPasswordToggle(toggleId, inputId) {
+    const toggleBtn = document.getElementById(toggleId);
+    const input = document.getElementById(inputId);
+    toggleBtn.addEventListener('click', () => {
+      if (input.type === 'password') {
+        input.type = 'text';
+        toggleBtn.textContent = 'Yashirish';
+      } else {
+        input.type = 'password';
+        toggleBtn.textContent = 'Ko‘rsat';
+      }
+    });
+  }
+
+  // Tablarni ko‘rsatish
+  function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.classList.add('hidden');
+    });
+    document.getElementById(tabId).classList.remove('hidden');
+
+    // Buttonlarni yangilash
+    document.getElementById('btnLoginTab').classList.remove('active');
+    document.getElementById('btnRegisterTab').classList.remove('active');
+    if (tabId === 'loginTab') {
+      document.getElementById('btnLoginTab').classList.add('active');
+    } else {
+      document.getElementById('btnRegisterTab').classList.add('active');
+    }
+
+    // Tozalash xabarlar
+    document.getElementById('loginMessage').textContent = '';
+    document.getElementById('registerMessage').textContent = '';
+  }
+
+  // Ro'yxatdan o'tish
+  function register() {
+    const firstName = document.getElementById('regFirstName').value.trim();
+    const lastName = document.getElementById('regLastName').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+    const message = document.getElementById('registerMessage');
+
+    message.textContent = '';
+    message.className = 'message';
+
+    if (!firstName || !lastName) {
+      message.textContent = 'Ism va familiya to‘ldirilishi shart.';
+      message.classList.add('error');
+      return;
+    }
+    if (password.length < 6) {
+      message.textContent = 'Parol kamida 6 ta belgidan bo‘lishi kerak.';
+      message.classList.add('error');
+      return;
+    }
+    if (password !== passwordConfirm) {
+      message.textContent = 'Parollar mos kelmadi.';
+      message.classList.add('error');
+      return;
+    }
+
+    const username = (firstName + lastName).toLowerCase();
+    if (findUser(username)) {
+      message.textContent = 'Bunday foydalanuvchi oldin ro‘yxatdan o‘tgan.';
+      message.classList.add('error');
+      return;
+    }
+
+    const newUser = {
+      username,
+      firstName,
+      lastName,
+      password,
+      balance: 0,
+      cardNumber: null,
+      isAdmin: false
+    };
+
+    users.push(newUser);
+    saveData();
+
+    message.textContent = 'Ro‘yxatdan o‘tish muvaffaqiyatli amalga oshdi. Endi tizimga kiring.';
+    message.classList.add('success');
+
+    // Formani tozalash
+    document.getElementById('regFirstName').value = '';
+    document.getElementById('regLastName').value = '';
+    document.getElementById('regPassword').value = '';
+    document.getElementById('regPasswordConfirm').value = '';
+
+    // Login sahifasiga o'tish
+    showTab('loginTab');
+  }
+
+  // Kirish
+  function login() {
+    const usernameInput = document.getElementById('loginUsername').value.trim().toLowerCase();
+    const passwordInput = document.getElementById('loginPassword').value;
+    const remember = document.getElementById('rememberMe').checked;
+    const message = document.getElementById('loginMessage');
+
+    message.textContent = '';
+    message.className = 'message';
+
+    if (!usernameInput || !passwordInput) {
+      message.textContent = 'Iltimos, username va parolni kiriting.';
+      message.classList.add('error');
+      return;
+    }
+
+    // Admin uchun login
+    if (usernameInput === 'admin' && passwordInput === ADMIN_PASSWORD) {
+      currentUser = {
+        username: 'admin',
+        isAdmin: true
+      };
+      saveData();
+      showAdminPanel();
+      if (remember) localStorage.setItem('rememberMe', 'admin');
+      else localStorage.removeItem('rememberMe');
+      return;
+    }
+
+    // Oddiy foydalanuvchi topish
+    const user = findUser(usernameInput);
+    if (!user || user.password !== passwordInput) {
+      message.textContent = 'Username yoki parol noto‘g‘ri.';
+      message.classList.add('error');
+      return;
+    }
+
+    currentUser = user;
+    saveData();
+    showDashboard();
+    if (remember) localStorage.setItem('rememberMe', user.username);
+    else localStorage.removeItem('rememberMe');
+  }
+
+  // Dashboardni ko‘rsatish
+  function showDashboard() {
+    document.querySelector('.tab-switcher').classList.add('hidden');
+    document.getElementById('loginTab').classList.add('hidden');
+    document.getElementById('registerTab').classList.add('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+
+    document.getElementById('userFullName').textContent = currentUser.firstName + ' ' + currentUser.lastName;
+    document.getElementById('userUsername').textContent = currentUser.username;
+    document.getElementById('userBalance').textContent = currentUser.balance + ' so‘m';
+    if (currentUser.cardNumber) {
+      document.getElementById('userCardNumber').textContent = formatCardNumber(currentUser.cardNumber);
+      document.getElementById('cardRequestSection').classList.add('hidden');
+      document.getElementById('transferSection').classList.remove('hidden');
+    } else {
+      document.getElementById('userCardNumber').textContent = 'Kartangiz yo‘q';
+      document.getElementById('cardRequestSection').classList.remove('hidden');
+      document.getElementById('transferSection').classList.add('hidden');
+    }
+
+    // Tozalash xabarlar
+    document.getElementById('cardRequestMessage').textContent = '';
+    document.getElementById('transferMessage').textContent = '';
+  }
+
+  // Admin panelini ko‘rsatish
+  function showAdminPanel() {
+    document.querySelector('.tab-switcher').classList.add('hidden');
+    document.getElementById('loginTab').classList.add('hidden');
+    document.getElementById('registerTab').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+
+    renderCardRequests();
+    renderUsers();
+  }
+
+  // Karta so‘rov yuborish (foydalanuvchi)
+  function requestCard() {
+    const message = document.getElementById('cardRequestMessage');
+    message.textContent = '';
+
+    if (currentUser.cardNumber) {
+      message.textContent = 'Sizda allaqachon karta mavjud.';
+      message.className = 'message error';
+      return;
+    }
+
+    // Agar oldin so‘rov yuborilgan bo‘lsa
+    if (cardRequests.find(r => r.username === currentUser.username)) {
+      message.textContent = 'Siz allaqachon karta so‘rovini yuborgansiz. Iltimos, kuting.';
+      message.className = 'message error';
+      return;
+    }
+
+    cardRequests.push({
+      username: currentUser.username,
+      firstName: currentUser.firstName,
+      lastName: currentUser.lastName,
+      requestedAt: new Date().toISOString()
+    });
+    saveData();
+
+    message.textContent = 'Karta so‘rovingiz yuborildi. Tez orada tasdiqlanadi.';
+    message.className = 'message success';
+
+    renderCardRequests();
+  }
+
+  // Admin karta so‘rovlarini ko‘rsatish va tasdiqlash uchun
+  function renderCardRequests() {
+    const container = document.getElementById('adminCardRequestsList');
+    if (cardRequests.length === 0) {
+      container.textContent = 'So‘rovlar yo‘q';
+      return;
+    }
+
+    container.innerHTML = '';
+    cardRequests.forEach((req, index) => {
+      const div = document.createElement('div');
+      div.className = 'card-request-item';
+      div.innerHTML = `
+        <strong>${req.firstName} ${req.lastName}</strong><br/>
+        Username: ${req.username}<br/>
+        So‘rov vaqti: ${new Date(req.requestedAt).toLocaleString()}<br/>
+        <button onclick="approveCardRequest(${index})">Tasdiqlash</button>
+        <button onclick="rejectCardRequest(${index})">Rad etish</button>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  // Tasdiqlash: karta yaratish va foydalanuvchiga berish
+  function approveCardRequest(index) {
+    const req = cardRequests[index];
+    if (!req) return;
+
+    // Karta raqamini generatsiya qilish
+    const cardNum = generateCardNumber();
+
+    // Userni topish
+    let user = findUser(req.username);
+    if (!user) {
+      alert('Foydalanuvchi topilmadi!');
+      return;
+    }
+
+    user.cardNumber = cardNum;
+    user.balance = 0;
+
+    // So‘rovni o‘chirish
+    cardRequests.splice(index, 1);
+
+    saveData();
+    renderCardRequests();
+    renderUsers();
+    alert(`Karta muvaffaqiyatli yaratilidi: ${formatCardNumber(cardNum)}`);
+  }
+
+  // Rad etish: so‘rovni o‘chirish
+  function rejectCardRequest(index) {
+    cardRequests.splice(index, 1);
+    saveData();
+    renderCardRequests();
+  }
+
+  // Foydalanuvchilar ro‘yxatini ko‘rsatish (admin uchun)
+  function renderUsers() {
+    const container = document.getElementById('adminUsersList');
+    if (users.length === 0) {
+      container.textContent = 'Foydalanuvchilar yo‘q';
+      return;
+    }
+
+    container.innerHTML = '';
+    users.forEach(user => {
+      container.innerHTML += `
+        <div class="card-request-item">
+          <strong>${user.firstName} ${user.lastName}</strong> (${user.username})<br/>
+          Karta: ${user.cardNumber ? formatCardNumber(user.cardNumber) : 'Yo‘q'}<br/>
+          Balans: ${user.balance} so‘m
+        </div>
+      `;
+    });
+  }
+
+  // Pul o‘tkazish (foydalanuvchi)
+  function transferMoney() {
+    const recipientCard = document.getElementById('transferCardNumber').value.replace(/\s/g, '');
+    const amount = parseInt(document.getElementById('transferAmount').value);
+    const message = document.getElementById('transferMessage');
+    message.textContent = '';
+    message.className = 'message';
+
+    if (!recipientCard || recipientCard.length !== 16 || isNaN(amount) || amount <= 0) {
+      message.textContent = 'Iltimos, to‘g‘ri karta raqami va miqdorni kiriting.';
+      message.classList.add('error');
+      return;
+    }
+    if (!currentUser.cardNumber) {
+      message.textContent = 'Sizda karta yo‘q.';
+      message.classList.add('error');
+      return;
+    }
+    if (currentUser.balance < amount) {
+      message.textContent = 'Balansingizda yetarli mablag‘ yo‘q.';
+      message.classList.add('error');
+      return;
+    }
+
+    const recipient = users.find(u => u.cardNumber === recipientCard);
+    if (!recipient) {
+      message.textContent = 'Qabul qiluvchi karta topilmadi.';
+      message.classList.add('error');
+      return;
+    }
+    if (recipient.username === currentUser.username) {
+      message.textContent = 'O‘zingizga pul o‘tkazishingiz mumkin emas.';
+      message.classList.add('error');
+      return;
+    }
+
+    // O‘tkazish
+    currentUser.balance -= amount;
+    recipient.balance += amount;
+
+    // Saqlash
+    const userIndex = users.findIndex(u => u.username === currentUser.username);
+    if (userIndex !== -1) users[userIndex] = currentUser;
+
+    const recipientIndex = users.findIndex(u => u.username === recipient.username);
+    if (recipientIndex !== -1) users[recipientIndex] = recipient;
+
+    saveData();
+    showDashboard();
+
+    message.textContent = `Muvaffaqiyatli ${amount} so‘m o‘tkazildi.`;
+    message.classList.add('success');
+
+    // Tozalash formalar
+    document.getElementById('transferCardNumber').value = '';
+    document.getElementById('transferAmount').value = '';
+  }
+
+  // Chiqish
+  function logout() {
+    currentUser = null;
+    saveData();
+
+    // RememberMe-ni tozalash
+    localStorage.removeItem('rememberMe');
+
+    // Dashboard va admin panelni yashirish
+    document.getElementById('dashboard').classList.add('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.querySelector('.tab-switcher').classList.remove('hidden');
+    showTab('loginTab');
+
+    // Tozalash inputlar
+    document.getElementById('loginUsername').value = '';
+    document.getElementById('loginPassword').value = '';
+    document.getElementById('loginMessage').textContent = '';
+  }
+
+  // Sahifa yuklanganda
+  window.onload = function() {
+    loadData();
+
+    setupPasswordToggle('toggleLoginPassword', 'loginPassword');
+    setupPasswordToggle('toggleRegPassword', 'regPassword');
+    setupPasswordToggle('toggleRegPasswordConfirm', 'regPasswordConfirm');
+
+    // Tab buttonlari
+    document.getElementById('btnLoginTab').addEventListener('click', () => showTab('loginTab'));
+    document.getElementById('btnRegisterTab').addEventListener('click', () => showTab('registerTab'));
+
+    // Agar remember me bor bo‘lsa
+    const rememberedUser = localStorage.getItem('rememberMe');
+    if (rememberedUser) {
+      if (rememberedUser === 'admin') {
+        currentUser = { username: 'admin', isAdmin: true };
+        showAdminPanel();
+      } else {
+        const user = findUser(rememberedUser);
+        if (user) {
+          currentUser = user;
+          showDashboard();
+        } else {
+          localStorage.removeItem('rememberMe');
+          showTab('loginTab');
+        }
+      }
+    } else {
+      showTab('loginTab');
+    }
+  };
+</script>
+
+</body>
+</html>
